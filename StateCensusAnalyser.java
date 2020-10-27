@@ -12,6 +12,7 @@ import com.google.gson.Gson;
 public class StateCensusAnalyser {
 	
 	List<CSVStateCensus> censusCSVList = null;
+	List<CSVStateCode> censusCodeCSVList = null;
 	
 	public int loadCSVData(String csvFile) throws CensusAnalyserException, IOException, CSVBuilderException {
 		try {
@@ -34,8 +35,8 @@ public class StateCensusAnalyser {
 			Reader reader = Files.newBufferedReader(Paths.get(csvFile));
 			@SuppressWarnings("unchecked")
 			CSVBuilderInterface<CSVStateCode> csvBuilder = CSVBuilderFactory.createCSVBuilder();
-			List<CSVStateCode> censusCSVList2 = csvBuilder.getCSVFileList(reader,CSVStateCode.class);
-			return censusCSVList2.size();
+			censusCodeCSVList = csvBuilder.getCSVFileList(reader,CSVStateCode.class);
+			return censusCodeCSVList.size();
 		} 
 		catch (RuntimeException e) {
 			throw new CensusAnalyserException(e.getMessage(), CensusAnalyserException.ExceptionType.INCORRECT_FILE);
@@ -44,6 +45,7 @@ public class StateCensusAnalyser {
 			throw new CensusAnalyserException(e.getMessage(), CensusAnalyserException.ExceptionType.CENSUS_FILE_PROBLEM);
 		}
 	}
+	
 	/**
 	 * UC 3
 	 * 
@@ -55,22 +57,37 @@ public class StateCensusAnalyser {
 			throw new CensusAnalyserException("No Census Data", CensusAnalyserException.ExceptionType.NO_CENSUS_DATA);
 		}
 		Comparator<CSVStateCensus> censusComparator = Comparator.comparing(CSVStateCensus -> CSVStateCensus.state);
-		this.sort(censusComparator);
+		this.sort(censusCSVList, censusComparator);
 		String sortedStateCensusJson = new Gson().toJson(censusCSVList);
 		return sortedStateCensusJson;
 	}
+	
+	/**
+	 * UC 4
+	 * 
+	 * @return
+	 * @throws CensusAnalyserException
+	 */
+	public String getStateCodeWiseSortedCensusData() throws CensusAnalyserException {
+		if(censusCodeCSVList == null || censusCodeCSVList.size() == 0) {
+			throw new CensusAnalyserException("No Census Data", CensusAnalyserException.ExceptionType.NO_CENSUS_DATA);
+		}
+		Comparator<CSVStateCode> censusCodeComparator = Comparator.comparing(CSVStateCode -> CSVStateCode.stateCode);
+		this.sort(censusCodeCSVList, censusCodeComparator);
+		String sortedStateCodeCensusJson = new Gson().toJson(censusCodeCSVList);
+		return sortedStateCodeCensusJson;
+	}
 
-	public void sort(Comparator<CSVStateCensus> censusComparator) {
-		for (int i = 0; i < censusCSVList.size(); i++) {
-			for (int j = 0; j < censusCSVList.size() - i - 1; j++) {
-				CSVStateCensus census1 = censusCSVList.get(j);
-				CSVStateCensus census2 = censusCSVList.get(j + 1);
+	public <E> void sort(List<E> censusList, Comparator<E> censusComparator) {
+		for (int i = 0; i < censusList.size(); i++) {
+			for (int j = 0; j < censusList.size() - i - 1; j++) {
+				E census1 =  censusList.get(j);
+				E census2 =  censusList.get(j + 1);
 				if (censusComparator.compare(census1, census2) > 0) {
-					censusCSVList.set(j, census2);
-					censusCSVList.set(j + 1, census1);
+					censusList.set(j, census2);
+					censusList.set(j + 1, census1);
 				}
 			}
 		}
 	}
-
 }
