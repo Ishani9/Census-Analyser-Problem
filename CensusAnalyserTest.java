@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 import java.io.IOException;
 import org.junit.Test;
 
+import com.google.gson.Gson;
+
 public class CensusAnalyserTest {
 	private static final String STATECENSUSFILE = "C:\\Users\\Ishani\\eclipse-workspace\\gradleAssignment\\IndiaStateCensusData.csv";
 	private static final String USCENSUSFILE = "C:\\Users\\Ishani\\eclipse-workspace\\gradleAssignment\\USCensusData.csv";
@@ -150,4 +152,33 @@ public class CensusAnalyserTest {
 			assertEquals(CensusAnalyserException.ExceptionType.INCORRECT_FILE, e.type);
 		}
 	}
+	
+	/**
+	 * UC 3
+	 * 
+	 * @throws IOException
+	 * @throws CensusAnalyserException
+	 * @throws CSVBuilderException
+	 */
+	@Test
+	public void givenIndianCensusData_WhenSortedOnState_ShouldReturnSortedResult()
+			throws IOException, CensusAnalyserException, CSVBuilderException {
+		StateCensusAnalyser analyser = new StateCensusAnalyser();
+		analyser.loadCSVData(STATECENSUSFILE);
+		String sortedCensusData = analyser.getStateWiseSortedCensusData();
+		CSVStateCensus[] censusCSV = new Gson().fromJson(sortedCensusData, CSVStateCensus[].class);
+		assertEquals("Andhra Pradesh", censusCSV[0].state);
+	}
+
+	
+	@Test
+	public void givenIndianCensusData_WhenSortedOnState_ShouldReturnSortedResultForLastState()
+			throws IOException, CensusAnalyserException, CSVBuilderException {
+		StateCensusAnalyser analyser = new StateCensusAnalyser();
+		analyser.loadCSVData(STATECENSUSFILE);
+		String sortedCensusData = analyser.getStateWiseSortedCensusData();
+		CSVStateCensus[] censusCSV = new Gson().fromJson(sortedCensusData, CSVStateCensus[].class);
+		assertEquals("West Bengal", censusCSV[censusCSV.length - 1].state);
+	}
+
 }
