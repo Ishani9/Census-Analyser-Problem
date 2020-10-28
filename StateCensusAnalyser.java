@@ -101,7 +101,23 @@ public class StateCensusAnalyser {
 		if(censusCSVList == null || censusCSVList.size() == 0) {
 			throw new CensusAnalyserException("No Census Data", CensusAnalyserException.ExceptionType.NO_CENSUS_DATA);
 		}
-		Comparator<CSVStateCensus> censusComparator = Comparator.comparing(CSVStateCensus -> CSVStateCensus.population);
+		Comparator<CSVStateCensus> censusComparator1 = Comparator.comparing(CSVStateCensus -> CSVStateCensus.population);
+		this.sortPopulation(censusCSVList, censusComparator1);
+		String sortedStateCensusJson1 = new Gson().toJson(censusCSVList);
+		return sortedStateCensusJson1;
+	}
+	
+	/**
+	 * UC 6
+	 * 
+	 * @return
+	 * @throws CensusAnalyserException
+	 */
+	public String getPopulationDensityWiseSortedCensusData() throws CensusAnalyserException {
+		if(censusCSVList == null || censusCSVList.size() == 0) {
+			throw new CensusAnalyserException("No Census Data", CensusAnalyserException.ExceptionType.NO_CENSUS_DATA);
+		}
+		Comparator<CSVStateCensus> censusComparator = Comparator.comparing(CSVStateCensus -> CSVStateCensus.densityPerSqKm);
 		this.sortPopulation(censusCSVList, censusComparator);
 		String sortedStateCensusJson = new Gson().toJson(censusCSVList);
 		return sortedStateCensusJson;
